@@ -3,11 +3,7 @@
 # DATE
 # VERSION
 
-# BEGIN INSERTED MODULE: PERLANCAR::Module::List 0.003004
-package PERLANCAR::Module::List;
-
-our $DATE = "2016-03-15";
-our $VERSION = "0.003004";
+# MODIFIED FROM PERLANCAR::Module::List 0.003005
 
 sub list_modules($$) {
 	my($prefix, $options) = @_;
@@ -34,9 +30,13 @@ sub list_modules($$) {
 	my $recurse = $options->{recurse};
 	my $return_path = $options->{return_path};
 	my $all = $options->{all};
-	my @prefixes = ($prefix);
+
+        my $find_pm = $options->{find_pm};
+
+        my @prefixes = ($prefix);
 	my %seen_prefixes;
 	my %results;
+      LIST:
 	while(@prefixes) {
 		my $prefix = pop(@prefixes);
 		my @dir_suffix = split(/::/, $prefix);
@@ -54,8 +54,10 @@ sub list_modules($$) {
 				if(($list_modules && $entry =~ $pm_rx) ||
 						($list_pod &&
 							$entry =~ $pod_rx)) {
+                                            next if $find_pm && "$prefix$1" ne $find_pm;
                                             $results{$prefix.$1} = $return_path ? ($all ? [@{ $results{$prefix.$1} || [] }, "$dir/$entry"] : "$dir/$entry") : undef
 						if $all && $return_path || !exists($results{$prefix.$1});
+                                            last LIST if $find_pm;
 				} elsif(($list_prefixes || $recurse) &&
 						($entry ne '.' && $entry ne '..') &&
 						$entry =~ $dir_rx &&
@@ -63,7 +65,7 @@ sub list_modules($$) {
 							$entry)) {
 					my $newpfx = $prefix.$entry."::";
 					next if exists $seen_prefixes{$newpfx};
-					$results{$newpfx} //= $return_path ? ($all ? [@{ $results{$newpfx} || [] }, "$dir/$entry/"] : "$dir/$entry/") : undef
+					$results{$newpfx} ||= $return_path ? ($all ? [@{ $results{$newpfx} || [] }, "$dir/$entry/"] : "$dir/$entry/") : undef
 						if ($all && $return_path || !exists($results{$newpfx})) && $list_prefixes;
 					push @prefixes, $newpfx if $recurse;
 				}
@@ -80,9 +82,6 @@ sub list_modules($$) {
 	}
 	return \%results;
 }
-# END INSERTED MODULE: PERLANCAR::Module::List 0.003004
-
-package main;
 
 use Data::Dumper;
 
@@ -90,8 +89,15 @@ use Data::Dumper;
     local $Data::Dumper::Terse = 1;
     local $Data::Dumper::Indent = 1;
     local @INC = grep {$_ ne '.'} @INC;
-    my $lmres = PERLANCAR::Module::List::list_modules(
-        '', {list_modules=>1, recurse=>1});
+    my $lmres;
+
+    if (@ARGV) {
+        $lmres = list_modules(
+            '', {list_modules=>1, recurse=>1, return_path=>1, find_pm=>$ARGV[0]});
+    } else {
+        $lmres = list_modules(
+            '', {list_modules=>1, recurse=>1});
+    }
     my $res = {modules=>$lmres};
     print Dumper($res);
 }

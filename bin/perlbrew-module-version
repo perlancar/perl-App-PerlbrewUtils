@@ -1,0 +1,74 @@
+#!perl
+
+# DATE
+# DIST
+# VERSION
+
+use 5.010001;
+use strict;
+use warnings;
+
+use Perinci::CmdLine::Any;
+use String::ShellQuote;
+
+our %SPEC;
+
+$SPEC{module_version} = {
+    v => 1.1,
+    summary => 'Check module version in each installed perl',
+    args => {
+        module => {
+            schema => 'str*',
+            'x.schema.entity' => 'modulename',
+            req => 1,
+            pos => 0,
+        },
+    },
+};
+sub module_version {
+    require App::perlbrew;
+    require ExtUtils::MakeMaker;
+    require File::Which;
+
+    my %args = @_;
+    my $mod = $args{module};
+
+    $mod =~ s!/!::!g;
+    #my $mod_pm = $mod; $mod_pm =~ s!::!/!g; $mod_pm .= ".pm";
+
+    my $probe_path = File::Which::which("__perlbrewutils-probe")
+        or return [412, "Can't find probe script __perlbrewutils-probe ".
+                   "in PATH, make sure App::PerlbrewUtils has been ".
+                   "installed first"];
+
+    my $pb = App::perlbrew->new;
+    my @perls = $pb->installed_perls;
+
+    my @res;
+    my %resmeta = ('table.fields' => [qw/perl module_version/]);
+    for my $perl (@perls) {
+        my $cmd = shell_quote($perl->{executable})." ".shell_quote($probe_path)." ".shell_quote($mod);
+        my $info_str = `$cmd`;
+        my $info = eval $info_str;
+        next if $@;
+
+        my $v;
+        if (my $path = $info->{modules}{$mod}) {
+            $v = MM->parse_version($path);
+            $v = undef if defined($v) && $v eq 'undef';
+        }
+
+        push @res, {
+            perl           => $perl->{name},
+            module_version => $v,
+        };
+    }
+    [200, "OK", \@res, \%resmeta];
+}
+
+Perinci::CmdLine::Any->new(
+    url => '/main/module_version',
+)->run;
+
+# ABSTRACT:
+# PODNAME:

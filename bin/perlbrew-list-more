@@ -24,10 +24,10 @@ sub list_more {
 
     my %args = @_;
 
-    my $path = File::Which::which("__perlbrewutils-getinfo");
-    $path or return [412, "Can't find prober script __perlbrewutils-getinfo ".
-                         "in PATH, make sure App::PerlbrewUtils has been ".
-                         "installed first"];
+    my $probe_path = File::Which::which("__perlbrewutils-probe")
+        or return [412, "Can't find probe script __perlbrewutils-probe ".
+                   "in PATH, make sure App::PerlbrewUtils has been ".
+                   "installed first"];
 
     my $pb = App::perlbrew->new;
     my @perls = $pb->installed_perls;
@@ -35,7 +35,7 @@ sub list_more {
     my @res;
     my %resmeta = ('table.fields' => [qw/name version num_modules/]);
     for my $perl (@perls) {
-        my $info_str = `__perlbrewutils-getinfo`;
+        my $info_str = `$perl->{executable} $probe_path`;
         my $info = eval $info_str;
         next if $@;
 
