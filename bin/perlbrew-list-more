@@ -1,0 +1,56 @@
+#!perl
+
+# DATE
+# DIST
+# VERSION
+
+use 5.010001;
+use strict;
+use warnings;
+
+use Perinci::CmdLine::Any;
+
+our %SPEC;
+
+$SPEC{list_more} = {
+    v => 1.1,
+    summary => 'List installed perls, but show more information',
+    args => {
+    },
+};
+sub list_more {
+    require App::perlbrew;
+    require File::Which;
+
+    my %args = @_;
+
+    my $path = File::Which::which("__perlbrewutils-getinfo");
+    $path or return [412, "Can't find prober script __perlbrewutils-getinfo ".
+                         "in PATH, make sure App::PerlbrewUtils has been ".
+                         "installed first"];
+
+    my $pb = App::perlbrew->new;
+    my @perls = $pb->installed_perls;
+
+    my @res;
+    my %resmeta = ('table.fields' => [qw/name version num_modules/]);
+    for my $perl (@perls) {
+        my $info_str = `__perlbrewutils-getinfo`;
+        my $info = eval $info_str;
+        next if $@;
+
+        push @res, {
+            name        => $perl->{version},,
+            version     => $perl->{version},
+            num_modules => scalar(keys %{$info->{modules}}),
+        };
+    }
+    [200, "OK", \@res, \%resmeta];
+}
+
+Perinci::CmdLine::Any->new(
+    url => '/main/list_more',
+)->run;
+
+# ABSTRACT:
+# PODNAME:
