@@ -1,5 +1,14 @@
 Revision history for App-PerlbrewUtils
 
+0.03    2016-03-17 (PERLANCAR)
+
+        - list-more: Add columns threads, multiplicity, longdouble, is_current.
+
+        - module-version: Add column has_module.
+
+        - [doc] Add description to each command.
+
+
 0.02    2016-03-17 (PERLANCAR)
 
 	- Add common filtering options: --include, --exclude,
