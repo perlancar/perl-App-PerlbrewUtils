@@ -1,13 +1,13 @@
 #!perl
 
 # DATE
-# DIST
 # VERSION
 
 use 5.010001;
 use strict;
 use warnings;
 
+use App::PerlbrewUtils;
 use Perinci::CmdLine::Any;
 
 our %SPEC;
@@ -16,6 +16,7 @@ $SPEC{list_more} = {
     v => 1.1,
     summary => 'List installed perls, but show more information',
     args => {
+        %App::PerlbrewUtils::common_args,
     },
 };
 sub list_more {
@@ -36,6 +37,8 @@ sub list_more {
     my @res;
     my %resmeta = ('table.fields' => [qw/name version num_modules num_core_modules num_noncore_modules/]);
     for my $perl (@perls) {
+        next unless App::PerlbrewUtils::_filter_perl($perl, \%args);
+
         my $info_str = `$perl->{executable} $probe_path`;
         my $info = eval $info_str;
         next if $@;

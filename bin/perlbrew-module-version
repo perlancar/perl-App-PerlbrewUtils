@@ -8,6 +8,7 @@ use 5.010001;
 use strict;
 use warnings;
 
+use App::PerlbrewUtils;
 use Perinci::CmdLine::Any;
 use String::ShellQuote;
 
@@ -17,6 +18,7 @@ $SPEC{module_version} = {
     v => 1.1,
     summary => 'Check module version in each installed perl',
     args => {
+        %App::PerlbrewUtils::common_args,
         module => {
             schema => 'str*',
             'x.schema.entity' => 'modulename',
@@ -47,6 +49,7 @@ sub module_version {
     my @res;
     my %resmeta = ('table.fields' => [qw/perl module_version/]);
     for my $perl (@perls) {
+        next unless App::PerlbrewUtils::_filter_perl($perl, \%args);
         my $cmd = shell_quote($perl->{executable})." ".shell_quote($probe_path)." ".shell_quote($mod);
         my $info_str = `$cmd`;
         my $info = eval $info_str;
