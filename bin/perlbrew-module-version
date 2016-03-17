@@ -75,3 +75,8 @@ Perinci::CmdLine::Any->new(
 
 # ABSTRACT:
 # PODNAME:
+
+=head1 DESCRIPTION
+
+This command is like L<module-version> or L<pmversion> but repeated for each
+installed perl.

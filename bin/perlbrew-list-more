@@ -73,3 +73,8 @@ Perinci::CmdLine::Any->new(
 
 # ABSTRACT:
 # PODNAME:
+
+=head1 DESCRIPTION
+
+Like `perlbrew list` but show more information for each perl: number of
+installed modules, number of installed core & non-core modules.
