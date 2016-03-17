@@ -35,7 +35,11 @@ sub list_more {
     my @perls = $pb->installed_perls;
 
     my @res;
-    my %resmeta = ('table.fields' => [qw/name version num_modules num_core_modules num_noncore_modules/]);
+    my %resmeta = ('table.fields' => [qw/
+                                            name
+                                            is_current
+                                            version
+                                            num_modules num_core_modules num_noncore_modules/]);
     for my $perl (@perls) {
         next unless App::PerlbrewUtils::_filter_perl($perl, \%args);
 
@@ -57,7 +61,8 @@ sub list_more {
         }
 
         push @res, {
-            name        => $perl->{version},
+            name        => $perl->{name},
+            is_current  => $perl->{is_current} ? 1:'',
             version     => $perl->{version},
             num_modules => scalar(keys %{$info->{modules}}),
             num_core_modules    => $num_core_modules,
