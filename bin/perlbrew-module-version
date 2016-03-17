@@ -47,7 +47,7 @@ sub module_version {
     my @perls = $pb->installed_perls;
 
     my @res;
-    my %resmeta = ('table.fields' => [qw/perl module_version/]);
+    my %resmeta = ('table.fields' => [qw/perl has_module module_version/]);
     for my $perl (@perls) {
         next unless App::PerlbrewUtils::_filter_perl($perl, \%args);
         my $cmd = shell_quote($perl->{executable})." ".shell_quote($probe_path)." ".shell_quote($mod);
@@ -55,14 +55,16 @@ sub module_version {
         my $info = eval $info_str;
         next if $@;
 
+        my $path;
         my $v;
-        if (my $path = $info->{modules}{$mod}) {
+        if ($path = $info->{modules}{$mod}) {
             $v = MM->parse_version($path);
             $v = undef if defined($v) && $v eq 'undef';
         }
 
         push @res, {
             perl           => $perl->{name},
+            has_module     => $path ? 1:0,
             module_version => $v,
         };
     }
