@@ -64,7 +64,7 @@ sub module_version {
 
         push @res, {
             perl           => $perl->{name},
-            has_module     => $path ? 1:0,
+            has_module     => $path ? 1:"",
             module_version => $v,
         };
     }
