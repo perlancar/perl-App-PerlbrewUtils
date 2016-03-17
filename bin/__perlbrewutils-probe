@@ -3,6 +3,9 @@
 # DATE
 # VERSION
 
+use Config;
+use Data::Dumper;
+
 # MODIFIED FROM PERLANCAR::Module::List 0.003005
 
 sub list_modules($$) {
@@ -83,8 +86,6 @@ sub list_modules($$) {
 	return \%results;
 }
 
-use Data::Dumper;
-
 {
     local $Data::Dumper::Terse = 1;
     local $Data::Dumper::Indent = 1;
@@ -98,7 +99,12 @@ use Data::Dumper;
         $lmres = list_modules(
             '', {list_modules=>1, recurse=>1});
     }
-    my $res = {modules=>$lmres};
+    my $res = {
+        modules => $lmres,
+        usethreads => $Config{usethreads},
+        uselongdouble => $Config{uselongdouble},
+        usemultiplicity => $Config{usemultiplicity}
+    };
     print Dumper($res);
 }
 
