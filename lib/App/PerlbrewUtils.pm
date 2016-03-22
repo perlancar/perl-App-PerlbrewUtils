@@ -58,6 +58,11 @@ _
         schema => ['str*'],
         tags => ['category:filtering'],
     },
+    exclude_dev => {
+        summary => 'Exclude dev perl(s)',
+        schema => ['bool'],
+        tags => ['category:filtering'],
+    },
 );
 
 sub _version_eq {
@@ -95,6 +100,13 @@ sub _version_lt {
     my $res = version->parse($v) < version->parse($spec);
     #say "D:comparing version $v vs $spec: $res";
     $res;
+}
+
+sub _version_dev {
+    my ($v) = @_;
+
+    $v =~ /^v?\d+\.(\d+)/ or return 0;
+    $1 % 2 ? 1:0;
 }
 
 sub _filter_perl {
@@ -158,6 +170,12 @@ sub _filter_perl {
     {
         last unless $args->{xmax_version};
         return 0 if !_version_lt($perl->{version}, $args->{xmax_version});
+    }
+
+  FILTER_EXCLUDE_DEV:
+    {
+        last unless $args->{exclude_dev};
+        return 0 if _version_dev($perl->{version});
     }
 
     1;
