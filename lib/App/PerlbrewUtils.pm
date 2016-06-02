@@ -181,6 +181,20 @@ sub _filter_perl {
     1;
 }
 
+sub _find_perl_by_name {
+    require App::perlbrew;
+
+    my ($name) = @_;
+
+    my $pb = App::perlbrew->new;
+
+    for my $perl ($pb->installed_perls) {
+        next unless $perl->{name} eq $name;
+        return $perl;
+    }
+    return undef;
+}
+
 1;
 # ABSTRACT: More utilities for perlbrew
 

@@ -1,0 +1,54 @@
+#!perl
+
+# DATE
+# VERSION
+
+use 5.010001;
+use strict;
+use warnings;
+
+use App::PerlbrewUtils;
+use App::ShellCompleter::perlbrew qw(complete_perl_installed_name);
+use Perinci::CmdLine::Any;
+
+our %SPEC;
+
+$SPEC{clean_site_lib} = {
+    v => 1.1,
+    summary => 'Clean site lib on a perl',
+    args => {
+        perl => {
+            schema => 'str*',
+            req => 1,
+            pos => 0,
+            completion => sub {
+                my %args = @_;
+                complete_perl_installed_name($args{word});
+            },
+        },
+    },
+};
+sub clean_site_lib {
+    require File::Path;
+
+    my %args = @_;
+
+    my $perl = App::PerlbrewUtils::_find_perl_by_name($args{perl})
+        or return [404, "No such installed perl '$args{perl}'"];
+
+    for my $dir (glob "$perl->{dir}/lib/site_perl/*") {
+        File::Path::remove_tree($dir);
+    }
+    [200];
+}
+
+Perinci::CmdLine::Any->new(
+    url => '/main/clean_site_lib',
+)->run;
+
+# ABSTRACT:
+# PODNAME:
+
+=head1 DESCRIPTION
+
+Remove all entries under $perl_dir/lib/site_lib/ for a specified perl.
