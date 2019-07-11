@@ -1,11 +1,11 @@
-0.04    2016-06-02 (PERLANCAR)
+0.04    2016-06-02  Released-By: PERLANCAR
 
         - Add option: --exclude-dev.
 
         - Add utility: clean-site-lib.
 
 
-0.03    2016-03-17 (PERLANCAR)
+0.03    2016-03-17  Released-By: PERLANCAR
 
         - list-more: Add columns threads, multiplicity, longdouble, is_current.
 
@@ -14,7 +14,7 @@
         - [doc] Add description to each command.
 
 
-0.02    2016-03-17 (PERLANCAR)
+0.02    2016-03-17  Released-By: PERLANCAR
 
 	- Add common filtering options: --include, --exclude,
 	  --include-version, --exclude-version, --min-version,
@@ -23,6 +23,6 @@
 	- list-more: Add columns num_core_modules, num_noncore_modules.
 
 
-0.01    2016-03-17 (PERLANCAR)
+0.01    2016-03-17  Released-By: PERLANCAR
 
         - First release.
